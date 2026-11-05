@@ -569,6 +569,47 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 }
 
 /* ==========================================================================
+   Video hero (home): scroll scrubs 151 frames of a 12.5 s clip
+   ========================================================================== */
+.vhero { position: relative; height: 320vh; background: #0f1620; }
+.vhero__stage { position: sticky; top: var(--header-h); height: calc(100svh - var(--header-h)); overflow: hidden; }
+.vhero__canvas, .vhero__poster { position: absolute; inset: 0; width: 100%; height: 100%; }
+.vhero__poster { object-fit: cover; object-position: 42% 58%; transition: opacity 0.4s var(--ease); }
+.vhero.is-live .vhero__poster { opacity: 0; }
+.vhero__shade { position: absolute; inset: 0; background: #0f1620; opacity: 0.4; pointer-events: none; }
+.vhero__wash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; z-index: 4; }
+.vhero__copy, .vhero__beat { position: absolute; left: 0; right: 0; bottom: clamp(72px, 11vh, 120px); z-index: 3; color: #fff; padding: 0 max(24px, calc((100vw - 1240px) / 2 + 24px)); will-change: opacity, filter, transform; }
+.vhero__copy > * { max-width: 640px; }
+.vhero__copy h1 { font-size: var(--t-hero); max-width: 12ch; margin-top: 24px; color: #fff; }
+.vhero__copy .lede { font-size: var(--s-hero); color: #e3e8ee; max-width: 520px; margin-top: 20px; line-height: 1.5; }
+.vhero__copy .actions { margin-top: 32px; }
+.vhero__copy .hero__call { color: #dce3eb; }
+.vhero__copy .hero__call a { color: #fff; }
+.pill--dark { background: rgba(255, 255, 255, 0.12); color: #fff; border-color: rgba(255, 255, 255, 0.25); }
+.vhero__beat { opacity: 0; pointer-events: none; }
+.vhero__beat > * { max-width: 400px; }
+.vhero__k { font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 600; color: #dce3eb; }
+.vhero__h { font-size: clamp(36px, 4vw, 56px); font-weight: 600; letter-spacing: -0.03em; line-height: 1.05; margin: 10px 0; }
+.vhero__beat p:last-child { color: #e3e8ee; }
+.vhero__hud { position: absolute; left: 0; right: 0; bottom: 24px; z-index: 3; padding: 0 max(24px, calc((100vw - 1240px) / 2 + 24px)); display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 10px; color: #dce3eb; font-size: 12px; letter-spacing: 0.14em; font-weight: 600; text-transform: uppercase; }
+.vhero__tc { font-variant-numeric: tabular-nums; }
+.vhero__tc b { color: #fff; }
+.vhero__bar { flex-basis: 100%; height: 2px; background: rgba(255, 255, 255, 0.25); position: relative; }
+.vhero__bar i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: #fff; }
+@media (max-width: 900px) {
+  .vhero__shade { opacity: 0.5; }
+  .vhero__copy, .vhero__beat { bottom: 132px; padding: 0 16px; }
+  .vhero__hud { bottom: 92px; padding: 0 16px; }
+  .vhero__copy .actions .btn--outline-light, .vhero__copy .hero__call { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vhero { height: auto; }
+  .vhero__stage { position: relative; top: 0; height: calc(100svh - var(--header-h)); }
+  .vhero__canvas, .vhero__beat, .vhero__hud, .vhero__wash { display: none; }
+  .vhero.is-live .vhero__poster { opacity: 1; }
+}
+
+/* ==========================================================================
    Responsive
    ========================================================================== */
 @media (max-width: 1080px) {
