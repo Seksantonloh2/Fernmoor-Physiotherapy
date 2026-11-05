@@ -57,6 +57,19 @@ Weight 600 for headings, tracking −3%.
 - **Page transition:** blur + fade out/in (0.4–0.5s) between pages only. Section links only smooth-scroll.
 - **Reduced motion:** blur/translate off, simple fades only.
 
+## Video hero (home)
+The home hero is a "video you scroll": scrolling plays a 12.5 s clip of a physio guiding a seated knee extension.
+- **Frames:** `assets/hero-frames/lg/` (1280px) and `sm/` (720px, used under 820px wide), 151 WebP frames at 12 fps, made with `ffmpeg -i clip.mp4 -vf fps=12,scale=1280:-2 -c:v libwebp -quality 68 lg/%04d.webp`. `poster.webp` shows before the first frame loads.
+- **Loading:** every 8th frame first, then the rest; the nearest loaded frame is drawn, so scrubbing works straight away.
+- **Scroll:** the section is 320vh with a sticky stage under the header. Scroll position (eased) picks the frame: down plays forwards, up rewinds.
+- **Camera:** 14% push-in toward the knee plus a small sideways drift.
+- **Copy beats:** hero title and CTAs (0–26%) → "01 · Hands-on / Guided, one to one." (30–64%) → "02 · Our rehab studio / Room to move." (66–94%), each blurring in and out. The tint deepens while text shows.
+- **Exit:** the last 7% washes to white into the stats strip.
+- **HUD:** "Scroll to play" hint, 0:00 / 0:12 timecode, progress line.
+- **Reduced motion:** the poster frame shows as a normal hero; no scrubbing.
+- **Framer:** build as a code component (canvas + scroll progress); host the frames as static assets.
+- **Footage:** the current clip is stock (Pexels). Replace it with real Fernmoor footage before launch, and re-export the frames.
+
 ## Before launch (from the brief)
 - [ ] Replace every placeholder contact detail, ABN and Ahpra number
 - [ ] Replace sample stats and reviews with real, non-clinical ones (or remove)

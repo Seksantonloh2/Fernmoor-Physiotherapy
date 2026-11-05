@@ -136,6 +136,66 @@
     updateParallax();
   }
 
+  /* ---------- Video hero: scroll scrubs the session clip (home) ---------- */
+  var vhero = document.querySelector(".vhero");
+  if (vhero && !reduced) {
+    var vcv = vhero.querySelector(".vhero__canvas"), vctx = vcv.getContext("2d");
+    var N = 151, set = window.innerWidth < 820 ? "sm" : "lg", frames = new Array(N);
+    var vClamp = function (v) { return Math.max(0, Math.min(1, v)); };
+    var vL = function (p, a, b) { return vClamp((p - a) / (b - a)); };
+    var vEase = function (t) { return 1 - Math.pow(1 - t, 3); };
+    var src = function (i) { return "assets/hero-frames/" + set + "/" + String(i + 1).padStart(4, "0") + ".webp"; };
+    var loadFrame = function (i) {
+      if (frames[i]) return;
+      var im = new Image(); im.decoding = "async";
+      if (i === 0) im.onload = function () { vhero.classList.add("is-live"); };
+      im.src = src(i); frames[i] = im;
+    };
+    // Every 8th frame first so the whole scrub works at once, then fill the gaps.
+    for (var k = 0; k < N; k += 8) loadFrame(k);
+    loadFrame(N - 1);
+    setTimeout(function () { for (var j = 0; j < N; j++) loadFrame(j); }, 400);
+    var nearest = function (i) {
+      for (var d = 0; d < N; d++) {
+        var a = frames[i - d], b = frames[i + d];
+        if (a && a.complete && a.naturalWidth) return a;
+        if (b && b.complete && b.naturalWidth) return b;
+      }
+      return null;
+    };
+    var vw = 0, vh = 0, dpr = 1;
+    var sizeCanvas = function () { dpr = Math.min(2, window.devicePixelRatio || 1); vw = vcv.clientWidth; vh = vcv.clientHeight; vcv.width = vw * dpr; vcv.height = vh * dpr; };
+    sizeCanvas(); window.addEventListener("resize", sizeCanvas);
+    var beats = vhero.querySelectorAll("[data-beat]"), shade = vhero.querySelector(".vhero__shade"), wash = vhero.querySelector(".vhero__wash");
+    var bar = vhero.querySelector(".vhero__bar i"), tc = vhero.querySelector("[data-vt]"), hint = vhero.querySelector(".vhero__hint");
+    var setBeat = function (el, o, dy) { el.style.opacity = o; el.style.filter = "blur(" + (1 - o) * 12 + "px)"; el.style.transform = "translateY(" + dy + "px)"; el.style.pointerEvents = o > 0.5 ? "auto" : "none"; };
+    var FX = 0.42, FY = 0.58, vp = 0;   // focal point: the knee being guided
+    var tickHero = function () {
+      var r = vhero.getBoundingClientRect();
+      if (r.bottom > 0 && r.top < window.innerHeight) {
+        var target = vClamp(-r.top / (vhero.offsetHeight - vcv.clientHeight));
+        vp += (target - vp) * 0.2;
+        var p = vp, play = vL(p, 0.04, 0.92), im = nearest(Math.round(play * (N - 1)));
+        vctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        if (im) {
+          var zoom = 1 + 0.14 * vEase(vL(p, 0.05, 0.9));
+          var sc = Math.max(vw / im.naturalWidth, vh / im.naturalHeight) * zoom, dw = im.naturalWidth * sc, dh = im.naturalHeight * sc;
+          var tx = (vw < vh ? 0.5 : 0.46) * vw - FX * dw - (vw > vh ? play * vw * 0.03 : 0), ty = 0.52 * vh - FY * dh;
+          vctx.drawImage(im, Math.min(0, Math.max(vw - dw, tx)), Math.min(0, Math.max(vh - dh, ty)), dw, dh);
+        }
+        var o0 = 1 - vL(p, 0.14, 0.26), o1 = vL(p, 0.3, 0.38) * (1 - vL(p, 0.56, 0.64)), o2 = vL(p, 0.66, 0.74) * (1 - vL(p, 0.88, 0.94));
+        setBeat(beats[0], o0, -(1 - o0) * 30); setBeat(beats[1], o1, (1 - o1) * 20); setBeat(beats[2], o2, (1 - o2) * 20);
+        shade.style.opacity = ((window.innerWidth < 901 ? 0.5 : 0.4) - 0.14 * (1 - Math.max(o0, o1, o2))).toFixed(3);
+        wash.style.opacity = vL(p, 0.93, 1).toFixed(3);
+        bar.style.width = play * 100 + "%";
+        tc.textContent = "0:" + String(Math.floor(play * 12.5)).padStart(2, "0");
+        hint.style.opacity = 1 - vL(p, 0.02, 0.08);
+      }
+      requestAnimationFrame(tickHero);
+    };
+    requestAnimationFrame(tickHero);
+  }
+
   /* ---------- FAQ accordion ---------- */
   document.querySelectorAll(".faq__q").forEach(function (q) {
     q.addEventListener("click", function () {
